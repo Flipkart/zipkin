@@ -1,0 +1,72 @@
+#!/bin/bash -e
+
+PAC=fk-zipkin
+PAC_GROUP=fk-w3
+PAC_GID=3000
+PAC_USER=fk-zipkin
+PAC_UID=3046
+
+PIDFILE_PATH=/var/run/${PAC}
+BIN_PATH="/usr/share/$PAC/bin"
+PROCESSES=( "collector" "query" "web" )
+
+function process_status() {
+    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid --running -- ${BIN_PATH}/$1
+    if [ "$?" -eq "0" ]; then
+        echo "up";
+    else
+        echo "down";
+    fi
+}
+
+function service_status() {
+    for i in "${PROCESSES[@]}"
+    do
+        if [ $(process_status $i) == "up" ]; then
+            echo "$i is up";
+        else
+            echo "$i is down";
+        fi
+    done
+}
+
+function start_service() {
+    for i in "${PROCESSES[@]}"
+    do
+        if [ $(process_status $i) == "up" ]; then
+            echo "$i is already running";
+        else
+            daemon -n fk-zipkin-${PROCESS} -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid --respawn -- ${BIN_PATH}/$i
+            echo "$i is started";
+        fi
+    done
+}
+
+function stop_service() {
+    for i in "${PROCESSES[@]}"
+    do
+        if [ $(process_status $i) == "up" ]; then
+            kill -9 $(ps aux | grep daemon | grep -v grep | grep ${PAC} | awk '{print $2}') || true
+            kill -9 $(ps aux | grep $i | grep -v grep | grep ${PAC} | awk '{print $2}') || true
+            sleep 1
+            if [ -f ${PIDFILE} ]; then
+                rm ${PIDFILE}
+            fi
+            if [ $(process_status $i) == "down" ]; then
+                echo "$i is stopped";
+            else
+                echo "Failed to stop $i";
+            fi
+        else
+            echo "$i is not running";
+        fi
+    done
+}
+
+case "$1" in
+	start) start_service;;
+	stop) stop_service;;
+	status) service_status;;
+esac
+
+exit 0

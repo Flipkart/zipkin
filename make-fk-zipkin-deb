@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+function die()
+{
+	echo "Error: $1" >&2
+	exit 1
+}
+
+function logmsg()
+{
+	echo "[`date`] $*"
+}
+
+[ -z "$LOCAL_DIR" ] && die "No base dir specified"
+[ -z "$TARGET" ] && die "No package target specified"
+[ -z "$PACKAGE" ] && die "No package name specified"
+[ ! -d "$LOCAL_DIR" ] && die "$LOCAL_DIR does not exist"
+[ -z "$TARGET" ] && die "Invalid target: $TARGET"
+
+pushd $LOCAL_DIR
+
+mkdir -p deb/usr/share/$PACKAGE
+cp -r bin *gradle* zipkin-* deb/usr/share/$PACKAGE
+
+logmsg "Done"
+
+

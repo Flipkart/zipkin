@@ -1,0 +1,42 @@
+#!/bin/bash -e
+
+PAC=fk-zipkin
+PAC_GROUP=fk-w3
+PAC_GID=3000
+PAC_USER=fk-zipkin
+PAC_UID=3046
+
+echo "Installing flipkart's version of openzipkin"
+
+if [ "$CMD" == "configure" ]; then
+	if ! getent group "$PAC_GROUP" > /dev/null; then
+    	groupadd -g "$PAC_GID" "$PAC_GROUP"
+    fi
+
+    if ! getent passwd $PAC_UID > /dev/null; then
+        adduser --system --uid $PAC_UID --home /usr/share/$PAC --no-create-home \
+        --ingroup $PAC_GROUP --disabled-password --shell /bin/false \
+        $PAC_USER
+    fi
+
+    mkdir -p /var/run/$PAC
+    chown -R $PAC_UID:$PAC_GID /var/run/$PAC
+    chmod 777 /var/run/$PAC
+
+    chown -R $PAC_UID:$PAC_GID /usr/share/$PAC
+    chmod 777 /usr/share/$PAC/bin/*
+
+    chown -R $PAC_UID:$PAC_GID /etc/init.d/$PAC
+    chmod 755 /etc/init.d/$PAC
+
+    mkdir -p /var/log/flipkart/$PAC || true
+    chown -R $PAC_UID:$PAC_GID /var/log/flipkart/$PAC
+
+    /etc/init.d/$PAC start || true
+fi
+
+echo "Installed flipkart's version of openzipkin"
+
+exit 0
+
+

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+CMD="$1"
+
+PAC=fk-zipkin
+PAC_GROUP=fk-w3
+PAC_GID=3000
+PAC_USER=fk-zipkin
+PAC_UID=3046
+
+if [ "$1" == "upgrade" ]; then
+	exit 0;
+fi
+
+if [ "$1" == "purge" ] ; then
+    if [ -d "/var/log/flipkart/$PAC" ]; then
+ 	    rm -rf "/var/log/flipkart/$PAC"
+    fi
+
+    if [ -d "/var/run/$PAC" ]; then
+        rm -rf "/var/run/$PAC"
+    fi
+fi
+exit 0

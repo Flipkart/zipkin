@@ -1,0 +1,11 @@
+#! /bin/bash -e
+
+PAC=fk-zipkin
+CMD="$1"
+
+if [ "$CMD" == "remove" -o "$CMD" == "upgrade" ]; then
+    if [ -f "/etc/init.d/$PAC" ] ; then
+  	    /etc/init.d/$PAC stop || true
+    fi
+fi
+
