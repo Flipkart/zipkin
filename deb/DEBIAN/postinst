@@ -8,7 +8,7 @@ PAC_UID=3046
 
 echo "Installing flipkart's version of openzipkin"
 
-if [ "$CMD" == "configure" ]; then
+if [ "$1" == "configure" ] ; then
 	if ! getent group "$PAC_GROUP" > /dev/null; then
     	groupadd -g "$PAC_GID" "$PAC_GROUP"
     fi

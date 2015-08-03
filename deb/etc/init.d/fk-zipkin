@@ -11,7 +11,7 @@ BIN_PATH="/usr/share/$PAC/bin"
 PROCESSES=( "collector" "query" "web" )
 
 function process_status() {
-    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid --running -- ${BIN_PATH}/$1
+    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid -D /usr/share/${PAC} --running -- ${BIN_PATH}/$1
     if [ "$?" -eq "0" ]; then
         echo "up";
     else
@@ -36,7 +36,7 @@ function start_service() {
         if [ $(process_status $i) == "up" ]; then
             echo "$i is already running";
         else
-            daemon -n fk-zipkin-${PROCESS} -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid --respawn -- ${BIN_PATH}/$i
+            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -D /usr/share/${PAC} --respawn -- ${BIN_PATH}/$i
             echo "$i is started";
         fi
     done

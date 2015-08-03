@@ -3,6 +3,7 @@ Version: 1._VERSION_
 Architecture: all
 Section: flipkart/w3
 Priority: standard
+Depends: oracle-j2sdk1.8
 Maintainer: Flipkart W3 Core Team <w3-core@flipkart.com>
 Description: Flipkart's version of OpenZipkin (a Distributed Tracing System)
 
