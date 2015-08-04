@@ -50,8 +50,8 @@ function stop_service() {
             kill -9 $(ps aux | grep daemon | grep -v grep | grep ${PAC} | awk '{print $2}') || true
             kill -9 $(ps aux | grep java | grep -v grep | grep ${PAC} | awk '{print $2}') || true
             sleep 1
-            if [ -f ${PIDFILE} ]; then
-                rm ${PIDFILE}
+            if [ -f ${PIDFILE_PATH}/$i.pid ]; then
+                rm ${PIDFILE_PATH}/$i.pid
             fi
             if [ $(process_status $i) == "down" ]; then
                 echo "$i is stopped";
