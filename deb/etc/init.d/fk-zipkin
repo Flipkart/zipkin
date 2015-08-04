@@ -7,6 +7,7 @@ PAC_USER=fk-zipkin
 PAC_UID=3046
 
 PIDFILE_PATH=/var/run/${PAC}
+LOGS_PATH=/var/log/flipkart/${PAC}
 BIN_PATH="/usr/share/$PAC/bin"
 PROCESSES=( "collector" "query" "web" )
 
@@ -36,7 +37,7 @@ function start_service() {
         if [ $(process_status $i) == "up" ]; then
             echo "$i is already running";
         else
-            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -D /usr/share/${PAC} --respawn -- ${BIN_PATH}/$i
+            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -D /usr/share/${PAC} -o ${LOGS_PATH}/$i.log --respawn -- ${BIN_PATH}/$i
             echo "$i is started";
         fi
     done
@@ -47,7 +48,7 @@ function stop_service() {
     do
         if [ $(process_status $i) == "up" ]; then
             kill -9 $(ps aux | grep daemon | grep -v grep | grep ${PAC} | awk '{print $2}') || true
-            kill -9 $(ps aux | grep $i | grep -v grep | grep ${PAC} | awk '{print $2}') || true
+            kill -9 $(ps aux | grep java | grep -v grep | grep ${PAC} | awk '{print $2}') || true
             sleep 1
             if [ -f ${PIDFILE} ]; then
                 rm ${PIDFILE}
