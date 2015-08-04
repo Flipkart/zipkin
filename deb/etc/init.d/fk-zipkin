@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export JAVA_HOME="/usr/lib/jvm/j2sdk1.8-oracle"
+
 PAC=fk-zipkin
 PAC_GROUP=fk-w3
 PAC_GID=3000
@@ -21,7 +23,7 @@ function getCommand() {
 }
 
 function process_status() {
-    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid --running -- "$(getCommand $i)"
+    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid --running -- $(getCommand $i)
     if [ "$?" -eq "0" ]; then
         echo "up";
     else
@@ -46,7 +48,7 @@ function start_service() {
         if [ $(process_status $i) == "up" ]; then
             echo "$i is already running";
         else
-            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -o ${LOGS_PATH}/$i.log --respawn -- "$(getCommand $i)"
+            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -o ${LOGS_PATH}/$i.log --respawn -- $(getCommand $i)
             echo "$i is started";
         fi
     done

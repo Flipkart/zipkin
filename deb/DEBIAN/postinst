@@ -24,7 +24,9 @@ if [ "$1" == "configure" ] ; then
     chmod 777 /var/run/$PAC
 
     chown -R $PAC_UID:$PAC_GID /usr/share/$PAC
-    chmod 777 /usr/share/$PAC/bin/*
+    chmod 777 /usr/share/$PAC/zipkin-collector-service/bin/*
+    chmod 777 /usr/share/$PAC/zipkin-query-service/bin/*
+    chmod 777 /usr/share/$PAC/zipkin-web/bin/*
 
     chown -R $PAC_UID:$PAC_GID /etc/init.d/$PAC
     chmod 755 /etc/init.d/$PAC
