@@ -8,11 +8,20 @@ PAC_UID=3046
 
 PIDFILE_PATH=/var/run/${PAC}
 LOGS_PATH=/var/log/flipkart/${PAC}
-BIN_PATH="/usr/share/$PAC/bin"
 PROCESSES=( "collector" "query" "web" )
 
+function getCommand() {
+    if [ $1 == "collector" ]; then
+        echo "/usr/share/${PAC}/zipkin-collector-service/bin/zipkin-collector-service -f /usr/share/${PAC}/zipkin-collector-service/resources/collector-cassandra.scala"
+    elif [ $1 == "query" ]; then
+        echo "/usr/share/${PAC}/zipkin-query-service/bin/zipkin-query-service -f /usr/share/${PAC}/zipkin-query-service/resources/query-cassandra.scala"
+    else
+        echo "/usr/share/${PAC}/zipkin-web/bin/zipkin-web -zipkin.web.resourcesRoot=/usr/share/${PAC}/zipkin-web/resources"
+    fi
+}
+
 function process_status() {
-    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid -D /usr/share/${PAC} --running -- ${BIN_PATH}/$1
+    daemon -n fk-zipkin-$1 -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$1.pid --running -- "$(getCommand $i)"
     if [ "$?" -eq "0" ]; then
         echo "up";
     else
@@ -37,7 +46,7 @@ function start_service() {
         if [ $(process_status $i) == "up" ]; then
             echo "$i is already running";
         else
-            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -D /usr/share/${PAC} -o ${LOGS_PATH}/$i.log --respawn -- ${BIN_PATH}/$i
+            daemon -n fk-zipkin-$i -u ${PAC_USER}:${PAC_GROUP} -F ${PIDFILE_PATH}/$i.pid -o ${LOGS_PATH}/$i.log --respawn -- "$(getCommand $i)"
             echo "$i is started";
         fi
     done
