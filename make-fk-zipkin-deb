@@ -32,12 +32,10 @@ echo "Building web"
 echo "Copying collector"
 cp -r zipkin-collector-service/build/install/* deb/usr/share/$PACKAGE
 mkdir -p deb/usr/share/$PACKAGE/zipkin-collector-service/resources
-cp zipkin-collector-service/config/collector-cassandra.scala deb/usr/share/$PACKAGE/zipkin-collector-service/resources
 
 echo "Copying query"
 cp -r zipkin-query-service/build/install/* deb/usr/share/$PACKAGE
 mkdir -p deb/usr/share/$PACKAGE/zipkin-query-service/resources
-cp zipkin-query-service/config/query-cassandra.scala deb/usr/share/$PACKAGE/zipkin-query-service/resources
 
 echo "Copying web"
 cp -r zipkin-web/build/install/* deb/usr/share/$PACKAGE

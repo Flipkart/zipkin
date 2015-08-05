@@ -12,6 +12,47 @@ PIDFILE_PATH=/var/run/${PAC}
 LOGS_PATH=/var/log/flipkart/${PAC}
 PROCESSES=( "collector" "query" "web" )
 
+function fetch_config() {
+    echo "Fetching config from config service using confd..."
+
+    # Determine config service bucket from /etc/fk-zipkin-bucket file
+    if [ -f /etc/fk-zipkin-bucket ]; then
+        bucket=`cat /etc/fk-zipkin-bucket`
+        if [ -z $bucket ]; then
+            echo "/etc/fk_zipkin_bucket is empty, exiting".
+            exit 1;
+        fi
+    else
+        echo "/etc/fk_zipkin_bucket doesn't exist, exiting".
+        exit 1;
+    fi
+    echo "Using $bucket as config service bucket..."
+    # Put the bucket names in toml and restart confd which will read config
+    # from config service and creates required configuration files
+    sed -i "s/__BUCKET_NAMES__/$bucket/g" /etc/confd/conf.d/collector-cassandra.toml
+    sed -i "s/__BUCKET_NAMES__/$bucket/g" /etc/confd/conf.d/query-cassandra.toml
+    sudo /etc/init.d/fk-config-service-confd restart
+
+    ATTEMPT=1
+    MAX_ATTEMPTS=3
+    CONFIG_FILE1="/usr/share/$PAC/zipkin-collector-service/resources/collector-cassandra.scala"
+    CONFIG_FILE2="/usr/share/$PAC/zipkin-query-service/resources/query-cassandra.scala"
+    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+        echo "Sleeping for 5 seconds to let confd create config files..."
+        sleep 5;
+        if [[ -f $CONFIG_FILE1 && -f $CONFIG_FILE2 ]]; then
+            echo "Config files created by confd, proceeding..."
+            break;
+        fi
+        ATTEMPT=`expr $ATTEMPT + 1`;
+    done
+
+    if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+        echo "Config files not yet created by confd after $MAX_ATTEMPTS, exiting"
+        exit 1;
+    fi
+}
+
 function getCommand() {
     if [ $1 == "collector" ]; then
         echo "/usr/share/${PAC}/zipkin-collector-service/bin/zipkin-collector-service -f /usr/share/${PAC}/zipkin-collector-service/resources/collector-cassandra.scala"
@@ -43,6 +84,7 @@ function service_status() {
 }
 
 function start_service() {
+    fetch_config
     for i in "${PROCESSES[@]}"
     do
         if [ $(process_status $i) == "up" ]; then

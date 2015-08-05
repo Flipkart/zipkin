@@ -1,0 +1,7 @@
+[template]
+prefix = "/__BUCKET_NAMES__"
+src = "collector-cassandra.scala.tmpl"
+dest = "/usr/share/fk-zipkin/zipkin-collector-service/resources/collector-cassandra.scala"
+keys = [
+    "/cassandraNodes"
+]
