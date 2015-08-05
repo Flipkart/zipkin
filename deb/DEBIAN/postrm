@@ -3,10 +3,6 @@
 CMD="$1"
 
 PAC=fk-zipkin
-PAC_GROUP=fk-w3
-PAC_GID=3000
-PAC_USER=fk-zipkin
-PAC_UID=3046
 
 if [ "$1" == "upgrade" ]; then
 	exit 0;
@@ -19,6 +15,26 @@ if [ "$1" == "purge" ] ; then
 
     if [ -d "/var/run/$PAC" ]; then
         rm -rf "/var/run/$PAC"
+    fi
+
+    if [ -f "/etc/confd/conf.d/collector-cassandra.toml" ]; then
+        rm -f "/etc/confd/conf.d/collector-cassandra.toml"
+    fi
+
+    if [ -f "/etc/confd/conf.d/query-cassandra.toml" ]; then
+        rm -f "/etc/confd/conf.d/query-cassandra.toml"
+    fi
+
+    if [ -f "/etc/confd/templates/collector-cassandra.scala.tmpl" ]; then
+        rm -f "/etc/confd/templates/collector-cassandra.scala.tmpl"
+    fi
+
+    if [ -f "/etc/confd/templates/query-cassandra.scala.tmpl" ]; then
+        rm -f "/etc/confd/templates/query-cassandra.scala.tmpl"
+    fi
+
+    if [ -d "/usr/share/$PAC" ] ; then
+        rm -rf "/usr/share/$PAC"
     fi
 fi
 exit 0
