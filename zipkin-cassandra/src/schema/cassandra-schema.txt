@@ -1,6 +1,6 @@
 connect 10.65.158.228/9160;
 
-create keyspace Zipkin with placement_strategy = 'org.apache.cassandra.locator.NetworkTopologyStrategy' and strategy_options = {65:2};
+create keyspace Zipkin with placement_strategy = 'org.apache.cassandra.locator.NetworkTopologyStrategy' and strategy_options = {32:2};
 use Zipkin;
 
 create column family Traces;
